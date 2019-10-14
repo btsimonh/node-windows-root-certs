@@ -8,7 +8,7 @@ Tested on node 12.10.0
 
 ## In a coporate envionment 
 
-If they have a WAF (Web Application Firewall - a man in the middle), the root certificate for the WAF is often installed as a certificate in Windows.  NodeJS has now access to this certifcate, and so nodeJS based applications will fail without special measures.
+If they have a WAF (Web Application Firewall - a man in the middle), the root certificate for the WAF is often installed as a certificate in Windows.  NodeJS has no access to this certifcate, and so nodeJS based applications will fail without special measures.
 
 ## You need to https or tls to a server with a self signed certificate
 
