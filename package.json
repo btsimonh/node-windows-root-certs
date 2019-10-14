@@ -1,5 +1,5 @@
 {
-  "name": "windows-root-certs",
+  "name": "node-windows-root-certs",
   "version": "1.0.0",
   "description": "Enables read of windows root certificates using ffi, and patching of node to use them",
   "main": "index.js",
@@ -7,13 +7,19 @@
     "test": "node test.js"
   },
   "keywords": [
+    "root",
     "certificate",
     "certificates",
+    "ssl",
     "tls",
     "https",
-    "windows",
-    "root"
+    "windows"
   ],
+  "homepage": "https://github.com/btsimonh/node-windows-root-certs#readme",
+  "bugs": { 
+    "url" : "https://github.com/btsimonh/node-windows-root-certs/issues"
+  },
+  "repository": "github:btsimonh/node-windows-root-certs",
   "dependencies": {
     "ffi": "lxe/node-ffi#node-12",
     "ref": "javihernandez/ref#node-12",

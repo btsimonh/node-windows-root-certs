@@ -1,4 +1,8 @@
-# windows-root-certs
+# node-windows-root-certs
+
+Enables use of Windows root certificates in nodejs directly, without environment settings or certificate files.
+
+Tested on node 12.10.0
 
 Uses for this module:
 
@@ -23,7 +27,7 @@ This module provides two features:
 
 ## reading of the Windows root certificates
 
-A function is provided to read the Widnows Root certifcates returning an array similar to node's own rootcertificates array.
+A function is provided to read the Windows Root certifcates returning an array similar to node's own rootcertificates array.
 
 ## patching tls
 
@@ -33,7 +37,7 @@ Note: if tls is patched AFTER a successful connection to a site, then it's likel
 
 # Usage
 
-`npm install windows-root-certs`
+`npm install node-windows-root-certs`
 
 ```
 var windowsRootCerts = require('windows-root-certs');
