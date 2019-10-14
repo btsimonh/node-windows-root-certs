@@ -4,7 +4,7 @@ Enables use of Windows root certificates in nodejs directly, without environment
 
 Tested on node 12.10.0
 
-Uses for this module:
+# Uses for this module:
 
 ## In a coporate envionment 
 
@@ -40,7 +40,7 @@ Note: if tls is patched AFTER a successful connection to a site, then it's likel
 `npm install node-windows-root-certs`
 
 ```
-var windowsRootCerts = require('windows-root-certs');
+var windowsRootCerts = require('node-windows-root-certs');
 
 // to read windows root certs
 var rootCerts = windowsRootCerts.getCerts();
@@ -55,7 +55,7 @@ windowsRootCerts.patchTls( rootCerts );
 or
 
 ```
-var windowsRootCerts = require('windows-root-certs');
+var windowsRootCerts = require('node-windows-root-certs');
 // to read the windows root certs and patch in a single command:
 windowsRootCerts.useWindowsCerts();
 ```
@@ -63,8 +63,11 @@ windowsRootCerts.useWindowsCerts();
 or - to add just some additional known certificates to the end of the existing NodeJS set:
 
 ```
-var windowsRootCerts = require('windows-root-certs');
-var mycerts = ["-----BEGIN CERTIFICATE-----\nMIIF.....Da\n-----END CERTIFICATE-----","-----BEGIN CERTIFICATE-----...."];
+var windowsRootCerts = require('node-windows-root-certs');
+var mycerts = [
+  "-----BEGIN CERTIFICATE-----\nMIIF.....Da\n-----END CERTIFICATE-----",
+  "-----BEGIN CERTIFICATE-----...."
+];
 windowsRootCerts.patchTls( mycerts, { includeNodeCerts:true } );
 
 ```
@@ -155,3 +158,15 @@ In combination, these provide the ability to call windows dll functions directly
 to read a windows certificate store and extract the certificates for use in node.
 
 tls is patched by replacing tls.createSecureContext with our own function, which extends or adds options to include the new certifcates before calling the original tls.createSecureContext function.
+
+# Credits
+
+The use of windows API functions directly in node would not be possible without the contributions of @TooTallNate (https://github.com/TooTallNate) - wish he would update his repos for node 12!
+
+Thanks to these repos for inspiration:
+
+https://github.com/ukoloff/win-ca
+
+https://github.com/capriza/syswide-cas
+
+
