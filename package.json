@@ -1,0 +1,24 @@
+{
+  "name": "windows-root-certs",
+  "version": "1.0.0",
+  "description": "Enables read of windows root certificates using ffi, and patching of node to use them",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "keywords": [
+    "certificate",
+    "certificates",
+    "tls",
+    "https",
+    "windows",
+    "root"
+  ],
+  "dependencies": {
+    "ffi": "lxe/node-ffi#node-12",
+    "ref": "javihernandez/ref#node-12",
+    "ref-struct": "javihernandez/ref-struct#node-12"
+  },
+  "author": "btsimonh@googlemail.com",
+  "license": "MIT"
+}
