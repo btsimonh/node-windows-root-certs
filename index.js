@@ -171,13 +171,12 @@ typedef struct _CERT_CONTEXT {
       options.maxcerts = 300;
     }
     
-    var hStoreHandle = null;
+    const hStoreHandle = Crypto.CertOpenSystemStoreA(null, StoreName);
     var pCertContext = null;   
-    if (hStoreHandle = Crypto.CertOpenSystemStoreA(null, StoreName)){
+    if (!ref.isNull(hStoreHandle)){
       //console.log("The "+StoreName+" store has been opened as ", hStoreHandle);
     } else {
-      console.log("The "+StoreName+" store failed to open.");
-      return [];
+      throw new Error('The '+StoreName+' store failed to open.');
     }
     
     var maxcerts = options.maxcerts;
