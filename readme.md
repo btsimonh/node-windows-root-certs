@@ -4,6 +4,8 @@ Enables use of Windows root certificates in nodejs directly, without environment
 
 Tested on node 12.10.0
 
+For node 18-22, please use [node-windows-root-certs-napi](https://github.com/YellaUmbrella-tv/node-windows-root-certs-napi)
+
 # Uses for this module:
 
 ## In a coporate envionment 
