@@ -1,6 +1,6 @@
 {
   "name": "node-windows-root-certs",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Enables read of windows root certificates using ffi, and patching of node to use them",
   "main": "index.js",
   "scripts": {
