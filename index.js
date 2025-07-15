@@ -1,9 +1,10 @@
-
+const process = require('process');
 
 if (process.platform === 'win32'){
   var ffi = require('ffi');
   var ref = require('ref');
   var Struct = require('ref-struct');
+  var debug = process.env['YUDEBUG.CERTS'];
 
 /*
 typedef struct _CERT_CONTEXT {
@@ -70,6 +71,14 @@ typedef struct _CERT_CONTEXT {
   PCERT_INFO pCertInfo;
   HCERTSTORE hCertStore;
 } CERT_CONTEXT, *PCERT_CONTEXT;
+
+DWORD CertNameToStrA(
+  [in]  DWORD           dwCertEncodingType,
+  [in]  PCERT_NAME_BLOB pName,
+  [in]  DWORD           dwStrType,
+  [out] LPSTR           psz,
+  [in]  DWORD           csz
+);
 */
 
   const DATA_BLOB = Struct({
@@ -137,6 +146,7 @@ typedef struct _CERT_CONTEXT {
       CertEnumCertificatesInStore: [ PCERT_CONTEXT, ['void *', PCERT_CONTEXT]],
       CertFreeCertificateContext: [ 'bool', [PCERT_CONTEXT] ],
       CertCloseStore: [ 'bool', ['void *', 'void *']],
+      CertNameToStrA: [ 'uint32' , [ 'uint32', DATA_BLOB, 'uint32', 'void *', 'uint32' ]],
   });
 
   function dumpblob(b, encoding) {
@@ -144,9 +154,34 @@ typedef struct _CERT_CONTEXT {
     //console.log(b.cbData);
     if (b.cbData < 10000) {
       var text = ref.reinterpret(b.pbData, b.cbData, 0);
+      //console.log(text);
       return text.toString(encoding);
     }
     return 'too big';
+  }
+
+  let longstring = '';
+  function nameBlobToString(b){
+    if (!longstring){
+      for (let i = 0; i < 1000/10; i++){
+        longstring += '01234567890';
+      }
+    }
+    var dest = ref.allocCString(longstring);
+    let destlen = dest.length;
+    
+    let len = Crypto.CertNameToStrA( 1, b, 1, dest, destlen );
+    dest = dest.slice(0, len);
+    return dest.toString();
+  }
+  
+  function toUnix(t) {
+     let low = t.dwLowDateTime;
+     let high = t.dwHighDateTime;
+
+     let filetime_ms = (high * (0x100000000/10000)) + (low/10000);
+     let unixtime = filetime_ms - 11644473600000;
+     return unixtime;
   }
   
   function splitSlice(str, len) {
@@ -168,9 +203,13 @@ typedef struct _CERT_CONTEXT {
     }
     
     if (!options.maxcerts) {
-      options.maxcerts = 300;
+      options.maxcerts = 1000;
     }
-    
+
+    if (debug){
+      console.log('YUDEBUG.CERTS:'+debug);
+      console.log('maxcerts:'+options.maxcerts);
+    }
     var hStoreHandle = null;
     var pCertContext = null;   
     if (hStoreHandle = Crypto.CertOpenSystemStoreA(null, StoreName)){
@@ -182,9 +221,10 @@ typedef struct _CERT_CONTEXT {
     
     var maxcerts = options.maxcerts;
     var quit = 0;
+    let certno = 0;
     
     // Find the certificates in the system store. 
-    while(!quit && (maxcerts > 0)) 
+    while(!quit) 
     {
       // on the first call to the function, 
       // this parameter is NULL 
@@ -198,15 +238,30 @@ typedef struct _CERT_CONTEXT {
         var CertEncodedLen = CertContext.cbCertEncoded;
         let binary = ref.reinterpret(CertContext.pbCertEncoded, CertEncodedLen, 0);
         var CertInfo = CertContext.pCertInfo.deref();
+        if (debug > 1){
+          let txt = 'Subject: '+nameBlobToString(CertInfo.Subject);
+          txt += '\nIssuer:'+nameBlobToString(CertInfo.Issuer);
+          if (debug > 2){
+            let d = new Date(toUnix(CertInfo.NotAfter));
+            txt += '\nNot After:'+d.toUTCString();
+          }
+          console.log(certno+':'+txt);
+        }
+
         var base64 = binary.toString('base64');
         var lines = splitSlice(base64, 72);
         lines.unshift('-----BEGIN CERTIFICATE-----');
         lines.push('-----END CERTIFICATE-----');
         var pem = lines.join('\n');
         certs.push(pem);
-        if (maxcerts-- <= 0) 
-          break;
+        maxcerts--;
+        certno++;
+        if (maxcerts <= 0) {
+          console.log('windows root certs - stopped loading at maxcerts ' + options.maxcerts);
+          quit = 1;
+        }
       } else {
+        console.log('windows root certs - loaded ' + (options.maxcerts - maxcerts)+' certificates');
         quit = 1;
       }
     } // End of while.
@@ -223,6 +278,7 @@ typedef struct _CERT_CONTEXT {
         console.log("Failed CertCloseStore");
     }
     
+    longstring = '';
     return certs;
   }
    
